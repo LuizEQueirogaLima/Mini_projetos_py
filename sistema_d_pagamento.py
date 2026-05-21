@@ -1,7 +1,6 @@
 import time
 import re
 
-
 class ContaBanco:
         def __init__(self):
             self.agencia = "001" 
@@ -71,7 +70,7 @@ class EscPagamento:
             try:
                 print("[1] ------ PIX\n[2] ------ CRÉDITO\n[3] ------ DEBITO")
                 pagescolha = int(input("Escolha: "))
-                if pagescolha >= 1 or pagescolha <= 3:
+                if 1 <= pagescolha <= 3:
                     for num, pag in opcoes.items():
                         if pagescolha == num:
                             print(f"Forma de pagamento escolhida foi {pag}\n")
@@ -83,8 +82,8 @@ class EscPagamento:
             
 class VerificaDados:
 
-    def dados_d_usuario(self):
-        agencia = 0
+    def dados_d_usuario(self, conta_do_cliente):
+        agencia = ""
         senha = 0
         tentativas = 0
         credenciais = False
@@ -96,14 +95,14 @@ class VerificaDados:
                     break
                 except ValueError:
                     print("Erro, digite digitos inteiros para a agencia e senha de usário")
-            if agencia == clienteA.agencia and senha == clienteA.senha:
+            if agencia == conta_do_cliente.agencia and senha == conta_do_cliente.senha:
                 print("Dados corretos, indo para a forma de pagamento\n")
                 time.sleep(1)
                 credenciais = True
                 return credenciais
             
             
-            if agencia != clienteA.agencia or senha != clienteA.senha:
+            if agencia != conta_do_cliente.agencia or senha != conta_do_cliente.senha:
                 tentativas += 1
                 print("Atenção, dados incorretos!!\n")
                 if tentativas < 3:
@@ -132,8 +131,8 @@ class Pagamentos:
                 print("Erro, valor digitado não compatível com o formato solicitado, porfavor, digite novamente... ")    
                 continue
                 
-            if conta_do_cliente.saldo > valtransf:
-                conta_do_cliente.saldo -= (valtransf*0.90)# Desconto aplicado por ser em pix
+            if conta_do_cliente.saldo >= valtransf:
+                conta_do_cliente.saldo -= (valtransf*0.90) # Desconto aplicado por ser em pix de 10%
                 time.sleep(1)
                 print(f"Transferência feita com sucesso!\n")
                 time.sleep(1)
@@ -159,8 +158,8 @@ class Pagamentos:
                 continue
             
             
-            if conta_do_cliente.limCartao > (valcredito+(valcredito*0.02)):
-                conta_do_cliente.limiteusado = (valcredito+(valcredito*0.02))# 2% de juros em cima do valor em crédito
+            if conta_do_cliente.limCartao >= conta_do_cliente.limiteusado + (valcredito + (valcredito*0.02)):
+                conta_do_cliente.limiteusado =  conta_do_cliente.limiteusado + (valcredito + (valcredito * 0.02)) # 2% de juros em cima do valor em crédito
                 time.sleep(1)
                 print(f"Compra no crédito aprovada com sucesso!!\n")
                 time.sleep(2)
@@ -186,16 +185,16 @@ class Pagamentos:
             
             
             if conta_do_cliente.saldo > valdebito:
-                conta_do_cliente.saldo = conta_do_cliente.saldo - (valdebito-(valdebito*0.08))# desconto aplicado por compras no cartão de débito
+                conta_do_cliente.saldo -= (valdebito-(valdebito*0.08))# Aplicado por compras no cartão de débito de 08% de desconto
                 time.sleep(1)
                 print(f"Compra no débito aprovada com sucesso!!\n")
                 time.sleep(2)
                 break
             else:
                 cont += 1
-                print(f"Erro, valor solicitado é maior do que o limite em conta, tente de novo\n Seu limite atual é de R${(conta_do_cliente.limCartao-conta_do_cliente.limiteusado):.2f}")
+                print(f"Erro, valor solicitado é maior do que o saldo em conta, tente de novo\n Seu limite atual é de R${(conta_do_cliente.saldo):.2f}")
             if cont == 3:
-                print("número de tentativas excedido, saindo do modo de pagamento: Compra em crédito...")
+                print("número de tentativas excedido, saindo do modo de pagamento: Compra em débito...")
                 break    
 
 print("Bem-vindo ao banco A")
@@ -210,29 +209,29 @@ confirmando_dados = VerificaDados() # cria o objeto verificador de dados da cont
 Escpag = EscPagamento() # Cria objeto Escolha de pagamento, para o usuário.
 
 while True:
-    realizador_d_pag = input("[S] = Sim ou [N] = Não: ").split()[0].upper()
+    realizador_d_pag = input("[S] = Sim ou [N] = Não: ").strip().upper()
     if realizador_d_pag == "S":
         print("processando...")
         time.sleep(1)
         print("Iniciando o sistema...")
         time.sleep(1)
-        credenciais = confirmando_dados.dados_d_usuario() #Puxa o método de verificação credenciais do usuário.
+        credenciais = confirmando_dados.dados_d_usuario(clienteA) #Puxa o método de verificação credenciais do usuário.
         
         if credenciais:
             numero, tipo = Escpag.puxarpagamento()
 
             pag_em_pix = Pagamentos(numero,tipo)
-            while True:
+            
 
-                if numero == 1:
-                    pag_em_pix.PagamentoPix(clienteA)
-                elif numero == 2:
-                    pag_em_pix.PagamentoCredito(clienteA)
-                elif numero == 3:
-                    pag_em_pix.PagamentoDebito(clienteA)
-                    
-                print(f"Escrevendo dados atuais da conta:\nNome:{clienteA.nome}\nSaldo da conta: {clienteA.saldo}\nLimite de atual do cartão: {(clienteA.limCartao-clienteA.limiteusado)}") 
-                break
+            if numero == 1:
+                pag_em_pix.PagamentoPix(clienteA)
+            elif numero == 2:
+                pag_em_pix.PagamentoCredito(clienteA)
+            elif numero == 3:
+                pag_em_pix.PagamentoDebito(clienteA)
+                
+            print(f"Escrevendo dados atuais da conta:\nNome:{clienteA.nome}\nSaldo da conta: {clienteA.saldo}\nLimite de atual do cartão: {(clienteA.limCartao-clienteA.limiteusado)}") 
+                
         time.sleep(1)
         print("Gostaria de realizar outro pagamento?\n")
         time.sleep(1)
