@@ -5,11 +5,11 @@
 # 2 - Login de Usuários
 # 3 - Empréstimo de Livros com o controle de estoque
 
+
 import time
 from datetime import date
 from datetime import datetime
 import re
-import msvcrt
 
 class Menu_de_acesso:
     def __init__(self):
@@ -62,8 +62,9 @@ class Biblioteca:
             
         #Cadastro de nome de sistema.
         while True:
+            # O sistema deve permitir que o nome de usuário contenha acentuação
             nome = (input("Digite o nome do que o usuário Gostaria de ser chamado: ").title().strip())
-            if re.search(r'[^a-zA-Z- ]',nome):
+            if re.search(r'[^a-zA-ZÀ-ÿ ]',nome):
                 print("Erro, o nome de usuário não pode ter caracteres especiais e números..\n Tente de novo..")
                 continue
             break
@@ -98,12 +99,12 @@ class Biblioteca:
         for erros in range (0,3):
             acesso_usu_digitado = input("usuário: ")
             senha = input("Senha: ")
-            if acesso_usu_digitado in self.acessos_de_usuario:
-                if senha == self.acessos_de_usuario[acesso_usu_digitado].senha: 
-                    print("Sucesso, acesso concedido\n")
-                    Biblio1.emprestimos(self.acessos_de_usuario[acesso_usu_digitado])
+            if acesso_usu_digitado in self.acessos_de_usuario and senha == self.acessos_de_usuario[acesso_usu_digitado].senha:
+                print("Sucesso, acesso concedido\n")
+                self.emprestimos(self.acessos_de_usuario[acesso_usu_digitado])
+                return
             print("Erro, acesso ou senha inválidos, por favor, digite um acesso correto\n")
-            if erros >= 3:
+            if erros == 2:
                 print("Foram feitas muitas tentativas de loguin, encerrando o programa")
                 return
     # Sistema de empréstimos de livros 
@@ -134,24 +135,40 @@ class Biblioteca:
                     print("Desculpe, nossa biblioteca está sem livros disponíveis no momento.")
                     continue
                 
-                try:
-                    codigo_escolhido = int(input("\nDigite o CÓDIGO do livro que deseja alugar: "))
-                    
-                    if codigo_escolhido in self.livros:
-                        if codigo_escolhido in cliente_logado.livros_emprestados:
-                            print("Erro: O cliente já está com uma cópia deste livro!")
-                            continue
-                            
-                        if self.livros[codigo_escolhido][1] < self.livros[codigo_escolhido][2]:
-                            self.livros[codigo_escolhido][1] += 1
-                            cliente_logado.livros_emprestados[codigo_escolhido] = date.today()
-                            print(f"Sucesso! O livro '{self.livros[codigo_escolhido][0]}' foi alugado com a data de hoje.")
-                        else:
-                            print("Erro: Este livro específico acabou de ficar sem estoque.")
-                    else:
-                        print("Erro: Código não encontrado no acervo.")
-                except ValueError:
-                    print("Erro: Digite um código numérico válido.")
+                while True:
+                    try:
+                        codigo_escolhido = int(input("\nDigite o CÓDIGO do livro que deseja alugar: "))
+                        
+                        if codigo_escolhido in self.livros:
+                            if codigo_escolhido in cliente_logado.livros_emprestados:
+                                print("Erro: O cliente já está com uma cópia deste livro!")
+                                continue
+                                
+                            if self.livros[codigo_escolhido][1] < self.livros[codigo_escolhido][2]:
+                                    self.livros[codigo_escolhido][1] += 1
+                                    while True:
+                                        print('\n[Opções de Data]')
+                                        data_input = input("Digite a data retroativa (DIA/MÊS/ANO) ou aperte ENTER para a data de hoje: ").strip()
+                                        
+                                        if data_input == "":
+                                            data_de_emprestimo = date.today()
+                                            break
+                                        try:
+                                            data_de_emprestimo = datetime.strptime(data_input, "%d/%m/%Y").date()
+                                            break
+                                        except ValueError:
+                                            print("Formato inválido: O usuário deve digitar da seguinte forma: DIA/MÊS/ANO")
+                                    
+                                    cliente_logado.livros_emprestados[codigo_escolhido] = data_de_emprestimo   
+                                
+
+                                    print(f"Sucesso! O livro '{self.livros[codigo_escolhido][0]}' foi alugado com a data: {data_de_emprestimo.strftime('%d/%m/%Y')}.")
+                                    break
+                            else:
+                                    print("Erro: Este livro específico está sem estoque em nosso acervo.")
+                        
+                    except ValueError:
+                        print("Erro: Digite um código numérico válido.")
                     
             elif selecao == "2":
                 if not cliente_logado.livros_emprestados:
@@ -206,8 +223,8 @@ class Usuario:
 print("\nBiblioteca Fictícia 01\nIniciando sistema")
     
 Biblio1 = Biblioteca()
+menu_principal = Menu_de_acesso()
 while True:
-    menu_principal = Menu_de_acesso()
     menu_principal.opcoes()
     if menu_principal.menu == 1:
         
@@ -215,18 +232,21 @@ while True:
         Biblio1.login_de_cliente()
     
     elif menu_principal.menu == 2:
-        while True:
-            print("Acessando o sistema de cadastro de usuários...\n")
-            laco = ""
-            Biblio1.cadastro_d_clientes()
+        print("Acessando o sistema de cadastro de usuários...\n")
+        laco = ""
 
-            print("Dados cadastrados, gostaria de cadastrar um novo usuário?\nAperte qualquer tecla para continuar ou aperte [n] para sair do sistema de cadastro...\n")
-            laco = msvcrt.getch().lower()
-            if laco == b"n":
+        while True:
+            Biblio1.cadastro_d_clientes()
+            print("Gostaria de estar cadastrando um novo usuário? \n")
+            laco = input("Escolha [S] para continuar e [N] para sair: ").strip().lower()
+            if laco == "n":
                 print("Encerrando cadastro de usuários..")
                 break
-            else:
+            elif laco == "s":
                 print("Continuando o programa..\n")
+            else:
+                print("Erro, a entrada deve ser 'S' para continuar e 'N' para encerrar o sistema de cadastros\nTente de novo...")
+                continue
     elif menu_principal.menu == 3:
         print("Encerrando o programa")
         break
