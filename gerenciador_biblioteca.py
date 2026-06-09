@@ -1,10 +1,8 @@
-
 # Sistema de Gerenciamento de Biblioteca
 # Funcionalidades:
 # 1 - Cadastro os Usuários com validação de senha
 # 2 - Login de Usuários
 # 3 - Empréstimo de Livros com o controle de estoque
-
 
 import time
 from datetime import date
@@ -37,7 +35,7 @@ class Menu_de_acesso:
 
 class Biblioteca:
     def __init__(self):
-        self.acessos_de_usuario = {}
+        self.__acessos_de_usuario = {} 
         self.livros_cadastrados = {}
         self.livros = {606025:["As cronicas de narnia Volume único",0, 5],706025:["Harry potter e a pedra filosofal", 0, 5],807025:["Senhor dos Aneis A sociedade do Anel", 0, 5],504025:["Jogos Vorazes", 0, 5],456525: ["Cosmos", 0, 5], 996535:["Uma breve história do tempo", 0, 5], 908025:["A arte da Guerra", 0, 5], 109025:["O principe de Maquiavel", 0, 5],204025:["O caso dos exploradores de caverna", 0, 5],896431:["A História do Universo para quem tem pressa", 0, 5]}
       
@@ -54,7 +52,8 @@ class Biblioteca:
             if re.search(r'[^a-zA-Z0-9]',nome_d_acesso):
                 print("Erro, o cadastro de acesso de usuário não pode conter caracteres especiais nem espaços")
                 continue
-            if nome_d_acesso in self.acessos_de_usuario:
+
+            if nome_d_acesso in self.__acessos_de_usuario:
                 print("Erro, o nome de acesso já existe, por favor digite um nome válido")
                 continue
             print(f"nome do usuário: {nome_d_acesso} cadastrado!!\n")
@@ -86,22 +85,31 @@ class Biblioteca:
                 continue
         
         novo_usuario = Usuario(nome_d_acesso, nome, senha)
-        self.acessos_de_usuario[nome_d_acesso] = novo_usuario 
+
+        self.__acessos_de_usuario[nome_d_acesso] = novo_usuario 
         
     def login_de_cliente(self):
         acesso_usu_digitado = ""
         senha = ""
         
-        if len(self.acessos_de_usuario) == 0:
+        if len(self.__acessos_de_usuario) == 0: 
             print("Erro, não temos usuários cadastrados em nosso sistema, voltando ao menu  ")
             return
         print("Por favor Digite seu nome de acesso\n")
         for erros in range (0,3):
             acesso_usu_digitado = input("usuário: ")
             senha = input("Senha: ")
-            if acesso_usu_digitado in self.acessos_de_usuario and senha == self.acessos_de_usuario[acesso_usu_digitado].senha:
+
+            if acesso_usu_digitado in self.__acessos_de_usuario:
+                cliente_encontrado = self.__acessos_de_usuario[acesso_usu_digitado]
+                
+                if cliente_encontrado.validar_senha(senha):
+                    print("Sucesso, acesso concedido")
+                
                 print("Sucesso, acesso concedido\n")
-                self.emprestimos(self.acessos_de_usuario[acesso_usu_digitado])
+
+                self.emprestimos(cliente_encontrado)
+
                 return
             print("Erro, acesso ou senha inválidos, por favor, digite um acesso correto\n")
             if erros == 2:
@@ -153,13 +161,19 @@ class Biblioteca:
                                         if data_input == "":
                                             data_de_emprestimo = date.today()
                                             break
+                                        
                                         try:
                                             data_de_emprestimo = datetime.strptime(data_input, "%d/%m/%Y").date()
+    
+                                            if data_de_emprestimo > date.today():
+                                                print("Erro, a informação não pode ser de uma data futura..")
+                                                continue
                                             break
                                         except ValueError:
                                             print("Formato inválido: O usuário deve digitar da seguinte forma: DIA/MÊS/ANO")
-                                    
-                                    cliente_logado.livros_emprestados[codigo_escolhido] = data_de_emprestimo   
+                                            
+
+                                    cliente_logado.guardar_livro_emprestado(codigo_escolhido, data_de_emprestimo)
                                 
 
                                     print(f"Sucesso! O livro '{self.livros[codigo_escolhido][0]}' foi alugado com a data: {data_de_emprestimo.strftime('%d/%m/%Y')}.")
@@ -171,6 +185,7 @@ class Biblioteca:
                         print("Erro: Digite um código numérico válido.")
                     
             elif selecao == "2":
+
                 if not cliente_logado.livros_emprestados:
                     print("\nEste cliente não possui livros pendentes para devolução.")
                     continue
@@ -196,7 +211,7 @@ class Biblioteca:
                         else:
                             print("Livro devolvido no prazo correto.")
                             
-                        del cliente_logado.livros_emprestados[codigo_devolver]
+                        cliente_logado.devolver_livro_emprestado(codigo_devolver)
                         self.livros[codigo_devolver][1] -= 1
                         print("Devolução concluída com sucesso no sistema!")
                         
@@ -211,14 +226,23 @@ class Biblioteca:
             
             else:
                 print("Opção inválida.")
+                
 class Usuario:
 
     def __init__(self,nome_do_acesso, nome_usuario, senha): 
         self.nome_de_acesso = nome_do_acesso
         self.nome_de_usuario = nome_usuario
-        self.senha = senha
         self.livros_emprestados = {}
-
+        self.__senha = senha
+        
+    def validar_senha(self, senha_informada):
+        return self.__senha == senha_informada
+    
+    def guardar_livro_emprestado(self, codigo_do_livro, data_do_aluguel):
+        self.livros_emprestados[codigo_do_livro] = data_do_aluguel
+        
+    def devolver_livro_emprestado(self, codigo_do_livro):
+        del self.livros_emprestados[codigo_do_livro]    
 
 print("\nBiblioteca Fictícia 01\nIniciando sistema")
     
