@@ -35,10 +35,8 @@ class Menu_de_acesso:
 
 class Biblioteca:
     def __init__(self):
-        self.__acessos_de_usuario = {} 
-        self.livros_cadastrados = {}
+        self.__acessos_de_usuario = {}
         self.livros = {606025:["As cronicas de narnia Volume único",0, 5],706025:["Harry potter e a pedra filosofal", 0, 5],807025:["Senhor dos Aneis A sociedade do Anel", 0, 5],504025:["Jogos Vorazes", 0, 5],456525: ["Cosmos", 0, 5], 996535:["Uma breve história do tempo", 0, 5], 908025:["A arte da Guerra", 0, 5], 109025:["O principe de Maquiavel", 0, 5],204025:["O caso dos exploradores de caverna", 0, 5],896431:["A História do Universo para quem tem pressa", 0, 5]}
-      
     def cadastro_d_clientes(self):
         nome = ""
         nome_d_acesso = ""
@@ -105,16 +103,12 @@ class Biblioteca:
                 
                 if cliente_encontrado.validar_senha(senha):
                     print("Sucesso, acesso concedido")
-                
-                print("Sucesso, acesso concedido\n")
-
-                self.emprestimos(cliente_encontrado)
-
+                    self.emprestimos(cliente_encontrado)
+                else:
+                    print("Erro, acesso ou senha inválidos, por favor, digite um acesso correto")
+                    continue
                 return
-            print("Erro, acesso ou senha inválidos, por favor, digite um acesso correto\n")
-            if erros == 2:
-                print("Foram feitas muitas tentativas de loguin, encerrando o programa")
-                return
+        print("Erro, acesso ou senha inválidos, por favor, digite um acesso correto\n")
     # Sistema de empréstimos de livros 
     def emprestimos(self,cliente_logado):
         while True:
@@ -153,7 +147,6 @@ class Biblioteca:
                                 continue
                                 
                             if self.livros[codigo_escolhido][1] < self.livros[codigo_escolhido][2]:
-                                    self.livros[codigo_escolhido][1] += 1
                                     while True:
                                         print('\n[Opções de Data]')
                                         data_input = input("Digite a data retroativa (DIA/MÊS/ANO) ou aperte ENTER para a data de hoje: ").strip()
@@ -171,7 +164,8 @@ class Biblioteca:
                                             break
                                         except ValueError:
                                             print("Formato inválido: O usuário deve digitar da seguinte forma: DIA/MÊS/ANO")
-                                            
+                                                    
+                                    self.livros[codigo_escolhido][1] += 1
 
                                     cliente_logado.guardar_livro_emprestado(codigo_escolhido, data_de_emprestimo)
                                 
@@ -180,6 +174,8 @@ class Biblioteca:
                                     break
                             else:
                                     print("Erro: Este livro específico está sem estoque em nosso acervo.")
+                        else:
+                            print("Erro, o Código do livro digitado não foi encontrato, tente de novo")
                         
                     except ValueError:
                         print("Erro: Digite um código numérico válido.")
