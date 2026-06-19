@@ -88,14 +88,19 @@ class TipoTinta:
     def __init__(self):
         self.rendiment_p_litro = 0
         self.volume = 0
+        self.demaos = 0
 
     def tinta_gasta (self):
         while True:
             try:
                 self.volume = float(input("Digite o volume de litros da lata de tinta: ").replace(',','.'))
                 self.rendiment_p_litro = float(input("Digite o volume de rendimento da tinta: ").replace(',','.'))
+                self.demaos = int(input("Digite a quantidade de demãos para necessárias para a parede: "))
+                if self.demaos < 1 or self.demaos > 3:
+                    print("Por favor digite uma quantidade entre UM a TRÊS demãos..")
+                    continue
                 if self.volume <=0 or self.rendiment_p_litro <= 0:
-                    print("Por porfavor digite um número positivo para a verificação..\n")
+                    print("Por favor digite um número positivo para a verificação..\n")
                     time.sleep(1)
                     continue
                 print("\n","  "*10,"Informações registradas!!","  "*10,"\n")
@@ -104,8 +109,8 @@ class TipoTinta:
             except ValueError:
                 print("Erro, uma das informações foi inválida, digite novamente\n")
                 time.sleep(1)
-        return self.volume,self.rendiment_p_litro
-            
+        return self.volume, self.rendiment_p_litro, self.demaos
+                
 class Calculador:
     def __init__(self):
         self.quantlatas = 0
@@ -143,21 +148,20 @@ class Calculador:
         return area_total
 
             
-    def otimizacao (self,area_total, volume_da_lata, rendimento_litro):
+    def otimizacao (self,area_total, volume_da_lata, rendimento_litro, demaos):
             sobra_em_litros = 0
             quant_latas = 0
             capacidade_d_compra = 0
             
-            quant_latas = math.ceil(area_total / (volume_da_lata * rendimento_litro))
-        
+            quant_latas = math.ceil((area_total / (volume_da_lata * rendimento_litro)) * demaos)
             capacidade_d_compra = quant_latas * (volume_da_lata * rendimento_litro)
-
-            sobra_em_litros = (capacidade_d_compra - area_total) / rendimento_litro
+            area_trabalhada = area_total * demaos
+            sobra_em_litros = (capacidade_d_compra - area_trabalhada) / rendimento_litro
             
             print(f"Minha área total é de {area_total:.2f}M²\n")
-            print(f"A quantidade de latas que você precisa são: {quant_latas} unidades\n")
+            print(f"Para aplicar {demaos} demão(s), você precisa comprar: {quant_latas} lata(s).")
             print(f"Com essa quantidade você pode pintar {capacidade_d_compra:.2f}M² de área\n")
-            print(f"Com a sobra de {sobra_em_litros:.2f} Litros, você conseguiria pintar {capacidade_d_compra- area_total:.2f} m²\n\n")
+            print(f"Com a sobra de {sobra_em_litros:.2f} litros, você conseguiria pintar {capacidade_d_compra - area_trabalhada:.2f} m²\n\n")
             time.sleep(2)
 
 
@@ -169,7 +173,7 @@ inp_calculo = Calculador()
 
 quant_paredes = minha_parede.quantidade_d_paredes()
 p_Tamanho_diferente, medidas, lista_de_paredes = minha_parede.info_parede(quant_paredes)
-volume_da_lata, rendimento_litro = tinta_d_parede.tinta_gasta()
+volume_da_lata, rendimento_litro, demaos = tinta_d_parede.tinta_gasta()
 area_total = inp_calculo.calcular(p_Tamanho_diferente, medidas, lista_de_paredes, quant_paredes)
-inp_calculo.otimizacao(area_total,volume_da_lata, rendimento_litro)
+inp_calculo.otimizacao(area_total,volume_da_lata, rendimento_litro, demaos)
 
