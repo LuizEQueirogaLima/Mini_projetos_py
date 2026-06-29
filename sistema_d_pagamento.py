@@ -29,23 +29,22 @@ class ContaBanco:
                 if Srt_completo == True:  
                     break
             
-        
             while True:
                 try:
 
                     self.senha = int(input(f"Agora vamos criar a senha do usuário {self.nome}: "))
-                    if len(str(self.senha)) < 6 or len(str(self.senha)) > 6:
+                    if len(str(self.senha)) != 6:
                         print("Erro, a senha deve ter o tamanho de exatos SEIS digitos\n")
                         continue
                     if self.senha < 0:
                         time.sleep(1)
                         print("Erro, a senha não pode ter números negativos...\n")
-                        continue    
+                        continue
                     break
                 
                 except ValueError:
                     time.sleep(1)
-                    print("Erro, digite um número inteiro para o cadastro e senha do cliente...\n")
+                    print("Erro, digite números inteiros para o cadastro da senha de cliente...\n")
                     time.sleep(1)
                 
             while True:
@@ -53,6 +52,10 @@ class ContaBanco:
                     self.saldo = float((input("Diga o valor depositado no ato da criação da conta: R$ ")).replace(",","."))
                     print()
                     self.limCartao = float((input("Diga o limite de cartão inicial do usuário: R$ ")).replace(",","."))
+                    if self.saldo <= 0 or self.limCartao <= 0:
+                        print("Os valores digitados não podem ser menores ou iguais a zero")
+                        time.sleep(1)
+                        continue
                     break
                 except ValueError:
                     print("Erro, digite um número para saldo e limite de cartão.\n")
@@ -75,7 +78,10 @@ class EscPagamento:
                         if pagescolha == num:
                             print(f"Forma de pagamento escolhida foi {pag}\n")
                             time.sleep(1)
-                            return num, pag 
+                            return num, pag
+                else:
+                    print("Erro, por favor escolha uma opção válida do menu")
+                    time.sleep(1)
             except ValueError:
                 print("Erro... digite um número entre 1 e 3 para a escolha")
                 continue
@@ -130,7 +136,11 @@ class Pagamentos:
             except ValueError:
                 print("Erro, valor digitado não compatível com o formato solicitado, porfavor, digite novamente... ")    
                 continue
-                
+            if valtransf <= 0:
+                print("O valor digitado não pode ser menor que zero, ou igual a zero,\n por favor digite o valor novamente...")
+                time.sleep(1)
+                continue
+            
             if conta_do_cliente.saldo >= valtransf:
                 conta_do_cliente.saldo -= (valtransf*0.90) # Desconto aplicado por ser em pix de 10%
                 time.sleep(1)
@@ -156,7 +166,10 @@ class Pagamentos:
             except ValueError:
                 print("Erro, valor digitado não compatível com o formato solicitado, porfavor, digite novamente... ")    
                 continue
-            
+            if valcredito <= 0:
+                print("Erro, a compra não pode ser Zero, nem menor que zero...")
+                time.sleep(1)
+                continue
             
             if conta_do_cliente.limCartao >= conta_do_cliente.limiteusado + (valcredito + (valcredito*0.02)):
                 conta_do_cliente.limiteusado =  conta_do_cliente.limiteusado + (valcredito + (valcredito * 0.02)) # 2% de juros em cima do valor em crédito
@@ -182,9 +195,12 @@ class Pagamentos:
             except ValueError:
                 print("Erro, valor digitado não compatível com o formato solicitado, porfavor, digite novamente... ")    
                 continue
+            if valdebito <= 0:
+                print("O valor digitado não pode ser zero ou menor que zero\n Porfavor, tente de novo.")
+                time.sleep(1)
+                continue
             
-            
-            if conta_do_cliente.saldo > valdebito:
+            if conta_do_cliente.saldo >= valdebito:
                 conta_do_cliente.saldo -= (valdebito-(valdebito*0.08))# Aplicado por compras no cartão de débito de 08% de desconto
                 time.sleep(1)
                 print(f"Compra no débito aprovada com sucesso!!\n")
@@ -201,7 +217,7 @@ print("Bem-vindo ao banco A")
 clienteA = ContaBanco() # Cria o objeto cliente
 time.sleep(1)
 print("Iniciando o sistema de cadastro..")
-clienteA.Criausuario() #Chama o método do cliente 
+clienteA.Criausuario() #Chama o método do cliente
 print("Gostaria de realizar algum pagamento?\n")
 realizador_d_pag = ""
 
