@@ -30,6 +30,7 @@ class AvaliadorImc:
                     continue
                 elif quantidade > 10:
                     print("Quantidade muito longa.. só é permitido a esse programa, a quantidade máxima de Dez pessoas por execução")
+                    continue
                 break
             except ValueError:
                 print("Erro, digite um valor que seja inteiro.")
@@ -42,8 +43,13 @@ class AvaliadorImc:
             while True:    
                 try:
                     print()
-                    peso = float((input(f"Digite o peso do paciente n°{quant+1}: ")).replace(",", "."))
                     altura = float((input(f"Digite a altura do paciente: ")).replace(",", "."))
+                    if altura <=0:
+                        print("\nA altura não pode ser menor ou igual a zero\npor favor Tente de novo..")
+                        time.sleep(1)
+                        continue
+                    peso = float((input(f"Digite o peso do paciente n°{quant+1}: ")).replace(",", "."))
+                        
                     progressivo = int(input("Digite a progressão em volume de peso que o paciente terá: "))
                     time.sleep(1)
                     pacientes_info.append(peso)

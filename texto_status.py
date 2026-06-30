@@ -35,9 +35,6 @@ class textoStatus:
         informacoes = {1: 0, 2: 0, 3: 0}
 
         for caractere in self.texto:
-            if caractere == "  ":
-                continue
-
 
             if caractere in self.Car_especiais:
                 cont_carEspeciais += 1

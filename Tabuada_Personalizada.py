@@ -5,7 +5,7 @@ class Tabuada:
         self.num_inicial = 0
         self.num_final = 0
     
-    print("==="*7,"Sistema de Tabuada personalizada","==="*7)
+    
 
     def Entrada_valores(self):
         print('\n',"=="*5,"Digite o valor inicial e o valor final para o calculo","=="*5)
@@ -15,7 +15,7 @@ class Tabuada:
                 self.num_inicial = int(input("Digite o 1° número do Loop: "))
                 self.num_final = int(input("Digite o 2° número do loop: "))
                 if self.num_inicial > self.num_final:
-                    print("Erro.. número inicial deve ser maior que o número final\n Tente de novo")
+                    print("Erro.. número inicial deve ser menor que o número final\n Tente de novo")
                     time.sleep(1)
                     continue
                 print("Dados gravados...\nCalculando...")
@@ -50,6 +50,7 @@ class Tabuada:
 
 
 while True:
+    print("\n","==="*7,"Sistema de Tabuada personalizada","==="*7)
     tabuada_per = Tabuada()
     inicial, final = tabuada_per.Entrada_valores()
     resultados_final = tabuada_per.calculador(inicial,final)
