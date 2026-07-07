@@ -11,8 +11,8 @@ class temporizador:
                 tempo = int(input("digite o tempo em minutos: "))
                 self.minutos = tempo
 
-                if self.minutos == 0:
-                    print("Defina o tempo para iniciar!!")
+                if self.minutos <= 0:
+                    print("Digite um valor inteiro e positivo para iniciar!!")
                     return
                 break
             except ValueError:

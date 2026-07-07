@@ -23,6 +23,7 @@ class Locadora:
                     continue
                 elif self.carros > 50:
                     print("Erro, o pátio não comporta a quantidade digitada")
+                    continue
                 break
             except ValueError:
                 print("Erro! digite um número inteiro")
@@ -138,4 +139,3 @@ clienteA = Locatario()
 clienteA.recebendo(dados_locadora)
 calcular = Calculador()
 calcular.funCalculadora(dados_locadora,clienteA)
-
